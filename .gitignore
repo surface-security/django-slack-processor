@@ -1,0 +1,11 @@
+*.pyc
+__pycache__
+/dist
+*.egg-info
+.coverage
+.reports
+.pytest_cache
+.vscode
+local_settings.py
+*.sqlite3
+.python-version
