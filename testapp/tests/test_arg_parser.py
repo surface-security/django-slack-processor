@@ -2,8 +2,7 @@ from unittest.mock import MagicMock
 
 import pytest
 from django.test import TestCase
-from slackbot.base import (ExitSlackCommand, MessageProcessor,
-                           NoMatchSlackCommand, SlackArgumentParser)
+from slackbot.base import ExitSlackCommand, MessageProcessor, NoMatchSlackCommand, SlackArgumentParser
 
 
 class Test(TestCase):

@@ -30,7 +30,12 @@ class Migration(migrations.Migration):
                 ('team', models.CharField(db_index=True, editable=False, max_length=100, null=True)),
                 ('channel', models.CharField(db_index=True, editable=False, max_length=100, null=True)),
                 ('ts', models.CharField(editable=False, max_length=150, null=True)),
-                ('user', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, to='slackbot.slackuser')),
+                (
+                    'user',
+                    models.ForeignKey(
+                        blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, to='slackbot.slackuser'
+                    ),
+                ),
             ],
             options={
                 'verbose_name': 'Analytics - Slack',

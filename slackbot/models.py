@@ -8,7 +8,7 @@ from slackbot import get_user_model
 class UserMixin:
     def convert_to_auth_user(self):
         return get_auth_user_model().objects.filter(email__iexact=self.email).first()
-    
+
     def has_perm(self, perm):
         auth_user = self.convert_to_auth_user()
         # no user, no check, no pass
@@ -16,7 +16,7 @@ class UserMixin:
             return False
 
         return auth_user.has_perm(perm)
-    
+
     @classmethod
     def user_id_has_perm(cls, ext_id, perm):
         user = get_user_model().objects.filter(ext_id=ext_id).first()
@@ -65,7 +65,6 @@ class UserMixin:
                 )
 
         cls.objects.filter(active=True, last_seen__lt=sync_stamp).update(active=False)
-
 
 
 class User(UserMixin, models.Model):
