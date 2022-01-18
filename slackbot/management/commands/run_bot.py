@@ -125,4 +125,5 @@ class Command(LogBaseCommand):
 
         # don't stop this process.
         from threading import Event
+
         Event().wait()

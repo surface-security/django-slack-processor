@@ -23,7 +23,7 @@ class Command(BaseCommand):
                 'is_superuser': True,
                 'is_staff': True,
                 'is_active': True,
-            }
+            },
         )
         u.set_password(DEFAULT_PASSWORD)
         u.save()
@@ -37,7 +37,7 @@ class Command(BaseCommand):
                 'is_staff': True,
                 'is_active': True,
                 'email': settings.TEST_USER_SLACK_EMAIL,
-            }
+            },
         )
         u.set_password(DEFAULT_PASSWORD)
         u.save()
