@@ -42,6 +42,8 @@ class Command(LogBaseCommand):
 
         channel = event.get('channel')
         user = event.get('user')
+        thread_ts = event.get('thread_ts')
+
         if not channel:
             return False
 
@@ -63,7 +65,11 @@ class Command(LogBaseCommand):
         processed_at_least_one = False
         for p in self.processors:
             try:
-                r = p.process(message, user=user, channel=channel, ts=ts, raw=event)
+                # Only process threads if bot was pinged in the message
+                if thread_ts and f'<@{self.my_id}>' in message:
+                    r = p.process(message, user=user, channel=channel, ts=thread_ts, raw=event)
+                else:
+                    r = p.process(message, user=user, channel=channel, ts=ts, raw=event)
                 if r:
                     if not isinstance(r, tuple):
                         r = (r,)
