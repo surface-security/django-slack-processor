@@ -1,6 +1,6 @@
 from functools import lru_cache
 
-__version__ = '0.0.2'
+__version__ = '0.0.3'
 
 # set default_app_config when using django earlier than 3.2
 try:
