@@ -1,7 +1,15 @@
 from functools import lru_cache
 
 __version__ = '0.0.2'
-default_app_config = 'slackbot.apps.SlackbotConfig'
+
+# set default_app_config when using django earlier than 3.2
+try:
+    import django
+
+    if django.VERSION < (3, 2):
+        default_app_config = 'slackbot.apps.SlackbotConfig'
+except ImportError:
+    pass
 
 
 @lru_cache
