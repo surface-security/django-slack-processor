@@ -13,6 +13,7 @@ APP_SETTINGS = dict(
 
 class SlackbotConfig(AppConfig):
     name = 'slackbot'
+    default_auto_field = 'django.db.models.AutoField'
 
     def __init__(self, app_name: str, app_module) -> None:
         super().__init__(app_name, app_module)
