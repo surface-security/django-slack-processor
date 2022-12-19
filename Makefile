@@ -1,6 +1,6 @@
 .PHONY: style
 style:
-	black --target-version=py36 \
+	black --target-version=py39 \
 	      --line-length=120 \
 	      --skip-string-normalization \
 	      --extend-exclude migrations \
@@ -8,7 +8,7 @@ style:
 
 .PHONY: style_check
 style_check:
-	black --target-version=py36 \
+	black --target-version=py39 \
 	      --line-length=120 \
 	      --skip-string-normalization \
 	      --check \
