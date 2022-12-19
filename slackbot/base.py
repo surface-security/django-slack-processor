@@ -13,7 +13,7 @@ class MessageProcessor:
     def __init__(self, rtm_client, web_client) -> None:
         self.client = rtm_client
         self.web = web_client
-        self.auth_user_id = self.web.auth_test()["user_id"]
+        self.user_id = self.web.auth_test()["user_id"]
 
     @staticmethod
     def user_has_perm(user, perm):
