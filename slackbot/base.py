@@ -14,7 +14,7 @@ class MessageProcessor:
         self.client = rtm_client
         self.web = web_client
         self.user_id = self.web.auth_test()["user_id"]
-        
+
     @staticmethod
     def user_has_perm(user, perm):
         return get_user_model().user_id_has_perm(user, perm)
