@@ -3,7 +3,7 @@ style:
 	black --target-version=py36 \
 	      --line-length=120 \
 	      --skip-string-normalization \
-	      --extend-exclude migrations
+	      --extend-exclude migrations \
 	      slackbot testapp setup.py
 
 .PHONY: style_check
@@ -12,7 +12,7 @@ style_check:
 	      --line-length=120 \
 	      --skip-string-normalization \
 	      --check \
-	      --extend-exclude migrations
+	      --extend-exclude migrations \
 	      slackbot testapp setup.py
 
 test:
