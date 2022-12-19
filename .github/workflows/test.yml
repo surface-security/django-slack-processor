@@ -46,5 +46,4 @@ jobs:
     - uses: codecov/codecov-action@v2
       with:
         token: ${{ secrets.CODECOV_TOKEN }}
-        version: "v0.1.15"
         fail_ci_if_error: true
