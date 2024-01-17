@@ -82,7 +82,8 @@ class SlackArgumentParser(argparse.ArgumentParser):
         prog = self.prog.lower()
 
         if isinstance(args, str):
-            if not args.lower().startswith(prog):
+            prog_from_message = args.split(" ")[0]
+            if prog_from_message != prog:
                 raise NoMatchSlackCommand
             args = shlex.split(args)
         elif args[0].lower() != prog:

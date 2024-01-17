@@ -24,6 +24,9 @@ class Test(TestCase):
         with pytest.raises(NoMatchSlackCommand):
             parser.parse_args("someothercmd bla bla")
 
+        with pytest.raises(NoMatchSlackCommand):
+            parser.parse_args("cmdnot bla bla")
+
         with pytest.raises(ExitSlackCommand, match=".*the following arguments are required: str.*"):
             parser.parse_args("cmd")
 
