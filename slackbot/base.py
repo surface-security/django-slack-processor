@@ -9,6 +9,7 @@ class MessageProcessor:
     PROCESSED = 2
 
     handle_bot_messages = False
+    handle_messages = True
 
     def __init__(self, rtm_client, web_client) -> None:
         self.client = rtm_client
@@ -36,7 +37,7 @@ class MessageProcessor:
 
         any other value will be ignored
         """
-        if not self.handle_bot_messages and "bot_id" in kw.get("raw", {}):
+        if (not self.handle_bot_messages and "bot_id" in kw.get("raw", {})) or not self.handle_messages:
             return
         return self.handle(message, **kw)
 
