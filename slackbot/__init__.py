@@ -17,11 +17,8 @@ def get_user_model():
     try:
         return apps.get_model(settings.SLACKBOT_USER_MODEL, require_ready=False)
     except ValueError:
-        raise ImproperlyConfigured(
-            "SLACKBOT_USER_MODEL must be of the form 'app_label.model_name'"
-        )
+        raise ImproperlyConfigured("SLACKBOT_USER_MODEL must be of the form 'app_label.model_name'")
     except LookupError:
         raise ImproperlyConfigured(
-            "SLACKBOT_USER_MODEL refers to model '%s' that has not been installed"
-            % settings.SLACKBOT_USER_MODEL
+            "SLACKBOT_USER_MODEL refers to model '%s' that has not been installed" % settings.SLACKBOT_USER_MODEL
         )
