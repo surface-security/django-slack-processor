@@ -53,9 +53,7 @@ class Command(LogBaseCommand):
         team = event.get("team")
         ts = event.get("event_ts", event.get("ts", ""))
         message = event.get("text", "")
-        message = unicodedata.normalize(
-            "NFKD", message
-        )  # normalize stuff like non-breaking spaces (/xa0)
+        message = unicodedata.normalize("NFKD", message)  # normalize stuff like non-breaking spaces (/xa0)
 
         # if `as_user=True`, check user to make sure we do not reply to `self`
         if user == self.my_id:
@@ -72,9 +70,7 @@ class Command(LogBaseCommand):
             try:
                 # Only process threads if bot was pinged in the message
                 if thread_ts and f"<@{self.my_id}>" in message:
-                    r = p.process(
-                        message, user=user, channel=channel, ts=thread_ts, raw=event
-                    )
+                    r = p.process(message, user=user, channel=channel, ts=thread_ts, raw=event)
                 else:
                     r = p.process(message, user=user, channel=channel, ts=ts, raw=event)
                 if r:
@@ -85,9 +81,7 @@ class Command(LogBaseCommand):
                     if MessageProcessor.STOP in r:
                         break
             except Exception as exc:
-                self.log_exception(
-                    f"Processor {str(p)} failed with {str(exc)} for message {message}"
-                )
+                self.log_exception(f"Processor {str(p)} failed with {str(exc)} for message {message}")
 
         # If private DM
         if channel[0] == "D":
@@ -97,9 +91,7 @@ class Command(LogBaseCommand):
             # check if message was hidden, can't react to hidden messages
             if not processed_at_least_one and not event.get("hidden"):
                 # React to User message with emojis if no results are found.
-                self.web.reactions_add(
-                    name="surface_not_found", channel=channel, timestamp=ts
-                )
+                self.web.reactions_add(name="surface_not_found", channel=channel, timestamp=ts)
                 # FIXME generic message here please
                 self.post_ephemeral(
                     channel=channel,
@@ -115,9 +107,7 @@ class Command(LogBaseCommand):
         self.my_id_match = "<@%s>" % self.my_id
         self.my_name = data.get("user")
 
-        self.processors = [
-            x(self.client, self.web) for x in MessageProcessor.__subclasses__()
-        ]
+        self.processors = [x(self.client, self.web) for x in MessageProcessor.__subclasses__()]
         self.stdout.write(f"Connected as {self.my_name}")
         self.stdout.write(
             f"Processors: {','.join(f'{x.__class__.__module__}.{x.__class__.__name__}' for x in self.processors)}"
@@ -128,10 +118,7 @@ class Command(LogBaseCommand):
             response = SocketModeResponse(envelope_id=req.envelope_id)
             client.send_socket_mode_response(response)
 
-            if (
-                req.payload["event"]["type"] == "message"
-                and req.payload["event"].get("subtype") is None
-            ):
+            if req.payload["event"]["type"] == "message" and req.payload["event"].get("subtype") is None:
                 return self.handle_message(**req.payload)
 
     def handle(self, *args, **options):
