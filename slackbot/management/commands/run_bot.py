@@ -1,19 +1,17 @@
 import unicodedata
 
-from database_locks import locked
 from django.conf import settings
 from django.db import close_old_connections
 from logbasecommand.base import LogBaseCommand
+from slack_sdk.socket_mode.builtin.client import SocketModeClient
+from slack_sdk.socket_mode.request import SocketModeRequest
+from slack_sdk.socket_mode.response import SocketModeResponse
+
 from slackbot.base import MessageProcessor
 
-from slack_sdk.socket_mode.response import SocketModeResponse
-from slack_sdk.socket_mode.request import SocketModeRequest
-from slack_sdk.socket_mode.builtin.client import SocketModeClient
 
-
-@locked
 class Command(LogBaseCommand):
-    help = 'Run Slack bot.'
+    help = "Run Slack bot."
     client = None
     web = None
     my_name = None
@@ -22,14 +20,19 @@ class Command(LogBaseCommand):
     processors = []
 
     def add_arguments(self, parser):
-        parser.add_argument('-t', '--token', action='store', help='Use TOKEN instead of the one in settings')
+        parser.add_argument(
+            "-t",
+            "--token",
+            action="store",
+            help="Use TOKEN instead of the one in settings",
+        )
 
     def post_message(self, **kwargs):
-        kwargs['as_user'] = kwargs.get('as_user', 1)
+        kwargs["as_user"] = kwargs.get("as_user", 1)
         return self.web.chat_postMessage(**kwargs)
 
     def post_ephemeral(self, **kwargs):
-        kwargs['as_user'] = kwargs.get('as_user', True)
+        kwargs["as_user"] = kwargs.get("as_user", True)
         return self.web.chat_postEphemeral(**kwargs)
 
     def handle_message(self, **payload):
@@ -38,18 +41,18 @@ class Command(LogBaseCommand):
         self.handle_message_really(**payload)
 
     def handle_message_really(self, **payload):
-        event = payload.get('event')
+        event = payload.get("event")
 
-        channel = event.get('channel')
-        user = event.get('user')
-        thread_ts = event.get('thread_ts')
+        channel = event.get("channel")
+        user = event.get("user")
+        thread_ts = event.get("thread_ts")
 
         if not channel:
             return False
 
-        team = event.get('team')
-        ts = event.get('event_ts', event.get('ts', ''))
-        message = event.get('text', '')
+        team = event.get("team")
+        ts = event.get("event_ts", event.get("ts", ""))
+        message = event.get("text", "")
         message = unicodedata.normalize("NFKD", message)  # normalize stuff like non-breaking spaces (/xa0)
 
         # if `as_user=True`, check user to make sure we do not reply to `self`
@@ -66,7 +69,7 @@ class Command(LogBaseCommand):
         for p in self.processors:
             try:
                 # Only process threads if bot was pinged in the message
-                if thread_ts and f'<@{self.my_id}>' in message:
+                if thread_ts and f"<@{self.my_id}>" in message:
                     r = p.process(message, user=user, channel=channel, ts=thread_ts, raw=event)
                 else:
                     r = p.process(message, user=user, channel=channel, ts=ts, raw=event)
@@ -78,21 +81,21 @@ class Command(LogBaseCommand):
                     if MessageProcessor.STOP in r:
                         break
             except Exception as exc:
-                self.log_exception(f'Processor {str(p)} failed with {str(exc)} for message {message}')
+                self.log_exception(f"Processor {str(p)} failed with {str(exc)} for message {message}")
 
         # If private DM
-        if channel[0] == 'D':
+        if channel[0] == "D":
             if not team:
                 return False
 
             # check if message was hidden, can't react to hidden messages
-            if not processed_at_least_one and not event.get('hidden'):
+            if not processed_at_least_one and not event.get("hidden"):
                 # React to User message with emojis if no results are found.
-                self.web.reactions_add(name='surface_not_found', channel=channel, timestamp=ts)
+                self.web.reactions_add(name="surface_not_found", channel=channel, timestamp=ts)
                 # FIXME generic message here please
                 self.post_ephemeral(
                     channel=channel,
-                    text='SurfaceBot will respond based on the context, so try to include IPs, Hostnames, Applications Name in the message.',
+                    text="SurfaceBot will respond based on the context, so try to include IPs, Hostnames, Applications Name in the message.",
                     user=user,
                 )
 
@@ -101,11 +104,11 @@ class Command(LogBaseCommand):
     def set_up(self, **payload):
         data = self.web.auth_test()
         self.my_id = data.get("user_id")
-        self.my_id_match = '<@%s>' % self.my_id
+        self.my_id_match = "<@%s>" % self.my_id
         self.my_name = data.get("user")
 
         self.processors = [x(self.client, self.web) for x in MessageProcessor.__subclasses__()]
-        self.stdout.write(f'Connected as {self.my_name}')
+        self.stdout.write(f"Connected as {self.my_name}")
         self.stdout.write(
             f"Processors: {','.join(f'{x.__class__.__module__}.{x.__class__.__name__}' for x in self.processors)}"
         )
@@ -123,10 +126,14 @@ class Command(LogBaseCommand):
         from slack_sdk.web.client import WebClient
 
         self.web = WebClient(token=settings.SLACKBOT_BOT_TOKEN)
-        self.client = SocketModeClient(app_token=settings.SLACKBOT_APP_TOKEN, web_client=self.web, logger=self.logger)
+        self.client = SocketModeClient(
+            app_token=settings.SLACKBOT_APP_TOKEN,
+            web_client=self.web,
+            logger=self.logger,
+        )
         self.set_up()
         self.client.socket_mode_request_listeners.append(self.process)
-        self.stdout.write('Connecting...\n')
+        self.stdout.write("Connecting...\n")
         self.client.connect()
 
         # don't stop this process.
