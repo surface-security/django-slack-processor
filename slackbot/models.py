@@ -82,3 +82,25 @@ class User(UserMixin, models.Model):
 
     def __str__(self):
         return f'{self.username} [{self.ext_id}]'
+
+class SlackMessage(models.Model):
+    channel = models.CharField(max_length=128)
+    channel_id = models.CharField(max_length=32)
+    client_msg_id = models.CharField(max_length=64)
+    reactions = models.JSONField(blank=True)
+    reply_count = models.IntegerField(blank=True)
+    reply_users = models.JSONField(default=list, blank=True)
+    reply_users_count = models.IntegerField(blank=True)
+    team = models.CharField(max_length=32)
+    text = models.TextField()
+    thread_timestamp = models.DateTimeField(null=True, blank=True)
+    time_stamp = models.DateTimeField()
+    type = models.CharField(max_length=32)
+    user = models.CharField(max_length=32)
+    message_from = models.CharField(max_length=128)
+    user_team = models.CharField(max_length=32)
+    thread_message = models.JSONField(null=True, blank=True)
+
+    class Meta:
+        verbose_name = "Slack Message"
+        verbose_name_plural = "Slack Messages"

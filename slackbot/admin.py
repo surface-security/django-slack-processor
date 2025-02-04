@@ -1,8 +1,10 @@
 from django.contrib import admin
 from django.utils.html import format_html
-
+from django.utils.safestring import mark_safe
+from logbasecommand.base import LogBaseCommand
 from . import get_user_model
-
+from slackbot import models
+import json
 
 @admin.register(get_user_model())
 class UserAdmin(admin.ModelAdmin):
@@ -23,4 +25,76 @@ class UserAdmin(admin.ModelAdmin):
     get_photo.allow_tags = True
 
     def has_add_permission(self, _):
+        return False
+
+@admin.register(models.SlackMessage)
+class SlackMessageAdmin(admin.ModelAdmin, LogBaseCommand):
+    list_display = (
+        "channel",
+        "message_from",
+        "reply_count",
+        "reply_users_list",
+        "reply_users_count",
+        "reactions_pretty",
+        "type",
+        "user_team",
+    )
+
+    readonly_fields = (
+        "channel",
+        "channel_id",
+        "client_msg_id",
+        "reactions_pretty",
+        "reply_count",
+        "reply_users_list",
+        "reply_users_count",
+        "team",
+        "text",
+        "thread_timestamp",
+        "time_stamp",
+        "type",
+        "user",
+        "message_from",
+        "user_team",
+        "thread_message_pretty",
+    )
+    exclude = ("reactions", "reply_users", "thread_message")
+    list_filter = ("channel", "message_from")
+
+    def reply_users_list(self, obj):
+        return ", ".join(obj.reply_users)
+
+    def thread_message_pretty(self, obj):
+        if not obj.thread_message:
+            return "-"
+        try:
+            formatted_json = json.dumps(obj.thread_message, indent=4, ensure_ascii=False)
+            return mark_safe(f"<pre>{formatted_json}</pre>")
+        except json.JSONDecodeError:
+            self.log_exception("Invalid JSON %s")
+            return "-"
+
+    def reactions_pretty(self, obj):
+        if not obj.reactions:
+            return "-"
+
+        try:
+            data = json.loads(obj.reactions) if isinstance(obj.reactions, str) else obj.reactions
+            formatted_output = []
+            for item in data:
+                name = item.get("name", "N/A")
+                count = item.get("count", 0)
+                users = item.get("users", [])
+                formatted_output.append(f"<b>{name}</b> (Count: {count})<br>Users: {users}")
+
+            return format_html("<br><br>".join(formatted_output))
+
+        except json.JSONDecodeError:
+            self.log_exception("Invalid JSON %s")
+            return "-"
+
+    def has_add_permission(self, request):
+        return False
+
+    def has_delete_permission(self, request, obj=None):
         return False
