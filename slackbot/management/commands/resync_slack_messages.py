@@ -8,7 +8,7 @@ from slack_sdk.errors import SlackApiError
 
 from iam.models import Account
 from logbasecommand.base import LogBaseCommand
-from slack.models import SlackMessage
+from slackbot.models import SlackMessage
 
 
 class Command(LogBaseCommand):
