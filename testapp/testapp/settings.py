@@ -133,6 +133,7 @@ except ImportError:
     create a local_settings.py next to the main settings.py and set
 
     SLACKBOT_BOT_TOKEN=YOUR_BOT_TOKEN  # xoxb-111-222-xyz
+    SLACK_CHANNELS=YOUR_SLACK_CHANNELS
     SLACKBOTj_APP_TOKEN=YOUR_APP_TOKEN  # xapp-A111-222-xyz
     TEST_USER_SLACK_EMAIL=YOUR_SLACK_EMAIL
 
