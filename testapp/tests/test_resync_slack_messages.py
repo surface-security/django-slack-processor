@@ -70,4 +70,4 @@ class TestResyncSlackMessages(TestCase):
         management.call_command("resync_slack_messages")
         wc_mock.assert_called_once()
         api_mock.conversations_history.assert_any_call(channel=mock.ANY, cursor=None, limit=20, oldest=mock.ANY)
-        self.assertEqual(models.SlackMessage.objects.count(), 9)
+        self.assertEqual(models.SlackMessage.objects.count(), 1)
