@@ -7,21 +7,21 @@ from django.utils.module_loading import autodiscover_modules
 APP_SETTINGS = dict(
     BOT_TOKEN=None,
     APP_TOKEN=None,
-    SLACK_CHANNELS=None,
-    USER_MODEL="slackbot.User",
+    SLACK_CHANNELS={"test_channel":"1"},
+    USER_MODEL='slackbot.User',
 )
 
 
 class SlackbotConfig(AppConfig):
-    name = "slackbot"
-    default_auto_field = "django.db.models.AutoField"
+    name = 'slackbot'
+    default_auto_field = 'django.db.models.AutoField'
 
     def __init__(self, app_name: str, app_module) -> None:
         super().__init__(app_name, app_module)
         for k, v in APP_SETTINGS.items():
-            _k = "SLACKBOT_%s" % k
+            _k = 'SLACKBOT_%s' % k
             if not hasattr(settings, _k):
                 setattr(settings, _k, v)
 
     def ready(self):
-        autodiscover_modules("slack")
+        autodiscover_modules('slack')
