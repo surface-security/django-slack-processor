@@ -6,9 +6,8 @@ from django.utils import timezone
 from slack_sdk import WebClient
 from slack_sdk.errors import SlackApiError
 
-from iam.models import Account
 from logbasecommand.base import LogBaseCommand
-from slackbot.models import SlackMessage
+from slackbot.models import SlackMessage, User
 
 
 class Command(LogBaseCommand):
@@ -63,8 +62,8 @@ class Command(LogBaseCommand):
                             )
                         if thread_response is not None:
                             for each in thread_response:
-                                user = Account.objects.filter(
-                                    ext_id=each["user"]
+                                user = User.objects.filter(
+                                    ext_id=each.get("user", "")
                                 ).first()
                                 if user:
                                     user = user.name
@@ -73,9 +72,7 @@ class Command(LogBaseCommand):
                                 replies.append({"user": user, "text": each["text"]})
                         reactions = []
                         for each in message.get("reactions", ""):
-                            user = Account.objects.filter(
-                                ext_id__in=each["users"]
-                            ).first()
+                            user = User.objects.filter(ext_id__in=each["users"]).first()
                             if user:
                                 user = user.name
                             else:
@@ -89,16 +86,17 @@ class Command(LogBaseCommand):
                             )
 
                         reply_users = list(
-                            Account.objects.filter(
+                            User.objects.filter(
                                 ext_id__in=message.get("reply_users", "")
                             ).values_list("name", flat=True)
                         )
                         SlackMessage.objects.update_or_create(
-                            time_stamp=aware_timestamp,
+                            ts=message["ts"],
                             channel=channel,
                             defaults={
                                 "channel_id": channel_id,
                                 "client_msg_id": message.get("client_msg_id", ""),
+                                "time_stamp": aware_timestamp,
                                 "reactions": reactions,
                                 "reply_count": message.get("reply_count", 0),
                                 "reply_users": reply_users,

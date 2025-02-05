@@ -20,6 +20,7 @@ class Migration(migrations.Migration):
                     ),
                 ),
                 ("channel", models.CharField(max_length=128)),
+                ("ts", models.CharField(max_length=32)),
                 ("channel_id", models.CharField(max_length=32)),
                 ("client_msg_id", models.CharField(max_length=64)),
                 ("reactions", models.JSONField(blank=True)),
@@ -40,5 +41,11 @@ class Migration(migrations.Migration):
                 "verbose_name": "Slack Message",
                 "verbose_name_plural": "Slack Messages",
             },
+        ),
+        migrations.AddConstraint(
+            model_name="slackmessage",
+            constraint=models.UniqueConstraint(
+                fields=("ts", "channel"), name="unique_ts_channel"
+            ),
         ),
     ]
