@@ -29,38 +29,43 @@ class UserMixin:
         sync_stamp = timezone.now()
 
         for user in members_list:
-            if user.get('deleted', False):
+            if user.get("deleted", False):
                 # save minimal data only
                 cls.objects.update_or_create(
-                    ext_id=user['id'],
+                    ext_id=user["id"],
                     defaults={
-                        'username': user['name'],
-                        'active': False,
-                        'is_bot': user.get('is_bot', False),
-                        'is_admin': user.get('is_admin', False),
-                        'last_seen': sync_stamp,
+                        "username": user["name"],
+                        "active": False,
+                        "is_bot": user.get("is_bot", False),
+                        "is_admin": user.get("is_admin", False),
+                        "last_seen": sync_stamp,
                     },
                 )
             else:
-                photo = user['profile'].get('image_72')
+                photo = user["profile"].get("image_72")
                 # try to find better photo (as full version)
-                for img_key in ['image_original', 'image_1024', 'image_512', 'image_192']:
-                    if img_key in user['profile']:
-                        photo = user['profile'][img_key]
+                for img_key in [
+                    "image_original",
+                    "image_1024",
+                    "image_512",
+                    "image_192",
+                ]:
+                    if img_key in user["profile"]:
+                        photo = user["profile"][img_key]
                         break
 
                 cls.objects.update_or_create(
-                    ext_id=user['id'],
+                    ext_id=user["id"],
                     defaults={
-                        'username': user['name'],
-                        'active': True,
-                        'is_bot': user.get('is_bot', False),
-                        'is_admin': user.get('is_admin', False),
-                        'last_seen': sync_stamp,
-                        'name': user['profile'].get('real_name_normalized', ''),
-                        'photo_thumb': user['profile'].get('image_72'),
-                        'photo': photo,
-                        'email': user['profile'].get('email'),
+                        "username": user["name"],
+                        "active": True,
+                        "is_bot": user.get("is_bot", False),
+                        "is_admin": user.get("is_admin", False),
+                        "last_seen": sync_stamp,
+                        "name": user["profile"].get("real_name_normalized", ""),
+                        "photo_thumb": user["profile"].get("image_72"),
+                        "photo": photo,
+                        "email": user["profile"].get("email"),
                     },
                 )
 
@@ -81,4 +86,29 @@ class User(UserMixin, models.Model):
     last_seen = models.DateTimeField(default=timezone.now, db_index=True)
 
     def __str__(self):
-        return f'{self.username} [{self.ext_id}]'
+        return f"{self.username} [{self.ext_id}]"
+
+
+class SlackMessage(models.Model):
+    channel = models.CharField(max_length=128)
+    ts = models.CharField(max_length=32)
+    channel_id = models.CharField(max_length=32)
+    client_msg_id = models.CharField(max_length=64)
+    reactions = models.JSONField(blank=True)
+    reply_count = models.IntegerField(blank=True)
+    reply_users = models.JSONField(default=list, blank=True)
+    reply_users_count = models.IntegerField(blank=True)
+    team = models.CharField(max_length=32)
+    text = models.TextField()
+    thread_timestamp = models.DateTimeField(null=True, blank=True)
+    time_stamp = models.DateTimeField()
+    type = models.CharField(max_length=32)
+    user = models.CharField(max_length=32)
+    message_from = models.CharField(max_length=128)
+    user_team = models.CharField(max_length=32)
+    thread_message = models.JSONField(null=True, blank=True)
+
+    class Meta:
+        constraints = [models.UniqueConstraint(fields=["ts", "channel"], name="unique_ts_channel")]
+        verbose_name = "Slack Message"
+        verbose_name_plural = "Slack Messages"
