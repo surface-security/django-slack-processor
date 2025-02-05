@@ -7,7 +7,7 @@ from django.utils.module_loading import autodiscover_modules
 APP_SETTINGS = dict(
     BOT_TOKEN=None,
     APP_TOKEN=None,
-    SLACK_CHANNELS={"test_channel":"1"},
+    SLACK_CHANNELS={"test_channel": "1"},
     USER_MODEL="slackbot.User",
 )
 
