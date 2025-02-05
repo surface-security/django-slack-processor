@@ -18,7 +18,7 @@ class Command(LogBaseCommand):
         timestamp_limit = time.mktime(time.strptime("2024-01-01", "%Y-%m-%d"))
         next_cursor = None
 
-        for channel, channel_id in settings.SLACK_CHANNELS.items():
+        for channel, channel_id in settings.SLACKBOT_SLACK_CHANNELS.items():
             next_cursor = None
             while True:
                 try:
