@@ -97,11 +97,7 @@ class SlackMessageAdmin(admin.ModelAdmin, LogBaseCommand):
     def reactions_pretty(self, obj):
         if not obj.reactions:
             return "-"
-        data = (
-            json.loads(obj.reactions)
-            if isinstance(obj.reactions, str)
-            else obj.reactions
-        )
+        data = json.loads(obj.reactions) if isinstance(obj.reactions, str) else obj.reactions
         formatted_output = []
         for item in data:
             name = item.get("name", "N/A")

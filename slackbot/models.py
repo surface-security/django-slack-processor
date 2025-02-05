@@ -109,8 +109,6 @@ class SlackMessage(models.Model):
     thread_message = models.JSONField(null=True, blank=True)
 
     class Meta:
-        constraints = [
-            models.UniqueConstraint(fields=["ts", "channel"], name="unique_ts_channel")
-        ]
+        constraints = [models.UniqueConstraint(fields=["ts", "channel"], name="unique_ts_channel")]
         verbose_name = "Slack Message"
         verbose_name_plural = "Slack Messages"

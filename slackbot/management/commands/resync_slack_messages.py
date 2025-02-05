@@ -33,9 +33,7 @@ class Command(LogBaseCommand):
                         thread_response = None
                         aware_thread_timestamp = None
                         time_stamp = datetime.fromtimestamp(float(message["ts"]))
-                        aware_timestamp = timezone.make_aware(
-                            time_stamp, timezone.get_default_timezone()
-                        )
+                        aware_timestamp = timezone.make_aware(time_stamp, timezone.get_default_timezone())
                         now_h = time_stamp.strftime("%Y-%m-%d %H")
                         if last_h != now_h:
                             last_h = now_h
@@ -43,28 +41,20 @@ class Command(LogBaseCommand):
                         if message.get("bot_id"):
                             continue
 
-                        if aware_timestamp < timezone.now() - timezone.timedelta(
-                            days=365
-                        ):
+                        if aware_timestamp < timezone.now() - timezone.timedelta(days=365):
                             continue
 
                         replies = []
                         if "thread_ts" in message:
-                            thread_response = client.conversations_replies(
-                                channel=channel_id, ts=message["thread_ts"]
-                            )
+                            thread_response = client.conversations_replies(channel=channel_id, ts=message["thread_ts"])
                             thread_response = thread_response["messages"][1:]
-                            thread_timestamp = datetime.fromtimestamp(
-                                float(message["thread_ts"])
-                            )
+                            thread_timestamp = datetime.fromtimestamp(float(message["thread_ts"]))
                             aware_thread_timestamp = timezone.make_aware(
                                 thread_timestamp, timezone.get_default_timezone()
                             )
                         if thread_response is not None:
                             for each in thread_response:
-                                user = User.objects.filter(
-                                    ext_id=each.get("user", "")
-                                ).first()
+                                user = User.objects.filter(ext_id=each.get("user", "")).first()
                                 if user:
                                     user = user.name
                                 else:
@@ -86,9 +76,9 @@ class Command(LogBaseCommand):
                             )
 
                         reply_users = list(
-                            User.objects.filter(
-                                ext_id__in=message.get("reply_users", "")
-                            ).values_list("name", flat=True)
+                            User.objects.filter(ext_id__in=message.get("reply_users", "")).values_list(
+                                "name", flat=True
+                            )
                         )
                         SlackMessage.objects.update_or_create(
                             ts=message["ts"],
@@ -100,25 +90,19 @@ class Command(LogBaseCommand):
                                 "reactions": reactions,
                                 "reply_count": message.get("reply_count", 0),
                                 "reply_users": reply_users,
-                                "reply_users_count": message.get(
-                                    "reply_users_count", 0
-                                ),
+                                "reply_users_count": message.get("reply_users_count", 0),
                                 "team": message.get("team", ""),
                                 "text": message["text"],
                                 "thread_timestamp": aware_thread_timestamp,
                                 "type": message["type"],
                                 "user": message["user"],
-                                "message_from": message.get("user_profile", {}).get(
-                                    "display_name", "Unknown User"
-                                ),
+                                "message_from": message.get("user_profile", {}).get("display_name", "Unknown User"),
                                 "user_team": message.get("user_team", ""),
                                 "thread_message": replies,
                             },
                         )
 
-                    next_cursor = response.get("response_metadata", {}).get(
-                        "next_cursor"
-                    )
+                    next_cursor = response.get("response_metadata", {}).get("next_cursor")
                     if not next_cursor:
                         break
                 except SlackApiError as e:
@@ -127,11 +111,7 @@ class Command(LogBaseCommand):
                         self.log_exception("Rate limit hit. Retrying.... %s")
                         time.sleep(retry_after)
                     else:
-                        self.log_exception(
-                            "Error fetching history: %s", e.response["error"]
-                        )
+                        self.log_exception("Error fetching history: %s", e.response["error"])
                         break
 
-        SlackMessage.objects.filter(
-            time_stamp__lt=timezone.now() - timezone.timedelta(days=365)
-        ).delete()
+        SlackMessage.objects.filter(time_stamp__lt=timezone.now() - timezone.timedelta(days=365)).delete()
