@@ -47,14 +47,8 @@ class Command(LogBaseCommand):
                             if message["bot_id"] in settings.SLACKBOT_BOT_EXCLUSIONS.values():
                                 continue
 
-                            message_from_id_list = str(message["text"]).split("<@")[1].split(">")
-                            if len(message_from_id_list) == 2:
-                                message_from_id = message_from_id_list[0]
-                            else:
-                                message_from_id = "-"
-
-                            user = User.objects.filter(ext_id=message_from_id).first()
-                            if user:
+                            message_from_id = message["text"].split("<@")[1].split(">")[0]
+                            if user := User.objects.filter(ext_id=message_from_id).first():
                                 message_from = user.name
                             else:
                                 message_from = "Unknown User"
