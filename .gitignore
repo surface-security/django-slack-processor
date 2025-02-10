@@ -10,3 +10,4 @@ local_settings.py
 *.sqlite3
 .python-version
 .tox
+venv3

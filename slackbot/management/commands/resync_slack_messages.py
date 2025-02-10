@@ -32,17 +32,38 @@ class Command(LogBaseCommand):
                     for message in response["messages"]:
                         thread_response = None
                         aware_thread_timestamp = None
+                        text = message["text"]
+                        message_from = message.get("user_profile", {}).get("display_name", "Unknown User")
                         time_stamp = datetime.fromtimestamp(float(message["ts"]))
                         aware_timestamp = timezone.make_aware(time_stamp, timezone.get_default_timezone())
                         now_h = time_stamp.strftime("%Y-%m-%d %H")
                         if last_h != now_h:
                             last_h = now_h
 
-                        if message.get("bot_id"):
-                            continue
-
                         if aware_timestamp < timezone.now() - timezone.timedelta(days=365):
                             continue
+
+                        if message.get("bot_id"):
+                            if message["bot_id"] in settings.SLACKBOT_BOT_EXCLUSIONS.values():
+                                continue
+
+                            message_from_id_list = str(message["text"]).split("<@")[1].split(">")
+                            if len(message_from_id_list) == 2:
+                                message_from_id = message_from_id_list[0]
+                            else:
+                                message_from_id = "-"
+
+                            user = User.objects.filter(ext_id=message_from_id).first()
+                            if user:
+                                message_from = user.name
+                            else:
+                                message_from = "Unknown User"
+
+                            text_list = str(message["text"]).split("*Description:*", 1)
+                            if len(text_list) == 2:
+                                text = text_list[1]
+                            else:
+                                text = "-"
 
                         replies = []
                         if "thread_ts" in message:
@@ -92,11 +113,11 @@ class Command(LogBaseCommand):
                                 "reply_users": reply_users,
                                 "reply_users_count": message.get("reply_users_count", 0),
                                 "team": message.get("team", ""),
-                                "text": message["text"],
+                                "text": text,
                                 "thread_timestamp": aware_thread_timestamp,
                                 "type": message["type"],
                                 "user": message["user"],
-                                "message_from": message.get("user_profile", {}).get("display_name", "Unknown User"),
+                                "message_from": message_from,
                                 "user_team": message.get("user_team", ""),
                                 "thread_message": replies,
                             },
@@ -108,7 +129,7 @@ class Command(LogBaseCommand):
                 except SlackApiError as e:
                     if e.response["error"] == "ratelimited":
                         retry_after = int(e.response.headers["Retry-After"])
-                        self.log_exception("Rate limit hit. Retrying.... %s")
+                        self.log_warning("Rate limit hit. Retrying....")
                         time.sleep(retry_after)
                     else:
                         self.log_exception("Error fetching history: %s", e.response["error"])
