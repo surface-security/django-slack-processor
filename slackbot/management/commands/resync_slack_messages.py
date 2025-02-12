@@ -61,7 +61,7 @@ class Command(LogBaseCommand):
                                 else:
                                     text = "-"
                         except Exception as e:
-                            self.log_warning("Error processing bot %s",message["bot_id"], e)
+                            self.log_warning("Error processing bot %s", message["bot_id"], e)
 
                         replies = []
                         if "thread_ts" in message:
