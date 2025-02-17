@@ -10,6 +10,7 @@ APP_SETTINGS = dict(
     SLACK_CHANNELS={"test_channel": "1"},
     BOT_EXCLUSIONS={"dummy_bot": "111"},
     USER_MODEL="slackbot.User",
+    MESSAGE_MODEL="slackbot.SlackMessage",
 )
 
 
