@@ -2,7 +2,7 @@ from django.contrib import admin
 from django.utils.html import format_html
 from django.utils.safestring import mark_safe
 from logbasecommand.base import LogBaseCommand
-from . import get_user_model
+from . import get_user_model, get_message_model
 from slackbot import models
 import json
 
@@ -51,7 +51,7 @@ class UserAdmin(admin.ModelAdmin):
         return False
 
 
-@admin.register(models.SlackMessage)
+@admin.register(get_message_model())
 class SlackMessageAdmin(admin.ModelAdmin, LogBaseCommand):
     list_display = (
         "channel",
