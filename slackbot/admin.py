@@ -3,7 +3,6 @@ from django.utils.html import format_html
 from django.utils.safestring import mark_safe
 from logbasecommand.base import LogBaseCommand
 from . import get_user_model, get_message_model
-from slackbot import models
 import json
 
 
