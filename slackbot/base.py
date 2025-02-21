@@ -1,7 +1,7 @@
 import argparse
 import shlex
 from typing import NoReturn, Optional, Sequence, Union
-from slackbot import get_user_model
+from slackbot import get_user_model, get_message_model
 
 
 class MessageProcessor:
