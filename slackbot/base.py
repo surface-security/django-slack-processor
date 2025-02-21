@@ -40,9 +40,7 @@ class MessageProcessor:
             return
         return self.handle(message, **kw)
 
-    def handle(
-        self, message, user=None, channel=None, ts=None, raw=None
-    ) -> Optional[Union[int, tuple[int, int]]]:
+    def handle(self, message, user=None, channel=None, ts=None, raw=None) -> Optional[Union[int, tuple[int, int]]]:
         """
         :return: None, self.STOP, self.PROCESSED, or tuple PROCESSED,STOP
 
@@ -77,9 +75,7 @@ class SlackArgumentParser(argparse.ArgumentParser):
         self.ts = ts
         super().__init__(prog=command, description=description, exit_on_error=False)
 
-    def parse_args(
-        self, args: Optional[Union[str, Sequence[str]]] = None, namespace=None
-    ):
+    def parse_args(self, args: Optional[Union[str, Sequence[str]]] = None, namespace=None):
         if not args:
             raise NoMatchSlackCommand
 
@@ -101,9 +97,7 @@ class SlackArgumentParser(argparse.ArgumentParser):
 
     def _print_message(self, message: str, file=None) -> None:
         if message:
-            self.message_processor.post_message(
-                channel=self.channel, text=message, thread_ts=self.ts
-            )
+            self.message_processor.post_message(channel=self.channel, text=message, thread_ts=self.ts)
 
     def print_usage(self, file=None) -> None:
         self._print_message("```\n" + self.format_usage() + "```", file)
