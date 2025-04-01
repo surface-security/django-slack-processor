@@ -141,12 +141,11 @@ class Command(LogBaseCommand):
             response = SocketModeResponse(envelope_id=req.envelope_id)
             client.send_socket_mode_response(response)
 
-            event = req.payload.get("event", {})
-            event_type = event.get("type")
+            event = req.payload["event"]
 
-            if event_type == "message" and event.get("subtype") is None:
+            if event["type"] == "message" and event.get("subtype") is None:
                 return self.handle_message(**req.payload)
-            elif event_type in ("reaction_added", "reaction_removed"):
+            elif event["type"] in ("reaction_added", "reaction_removed"):
                 return self.handle_reaction(**req.payload)
 
     def handle(self, *args, **options):
