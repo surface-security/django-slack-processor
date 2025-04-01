@@ -67,9 +67,7 @@ class TestSlackBotCommand(unittest.TestCase):
 
     def test_post_message(self):
         self.command.post_message(channel="C12345", text="Hello!")
-        self.command.web.chat_postMessage.assert_called_once_with(
-            channel="C12345", text="Hello!", as_user=1
-        )
+        self.command.web.chat_postMessage.assert_called_once_with(channel="C12345", text="Hello!", as_user=1)
 
     def test_post_ephemeral(self):
         self.command.post_ephemeral(channel="C12345", text="Hello!", user="U67890")
