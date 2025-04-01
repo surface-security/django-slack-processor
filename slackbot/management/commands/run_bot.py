@@ -51,7 +51,7 @@ class Command(LogBaseCommand):
         processed_at_least_one = False
         for p in self.processors:
             try:
-                r = p.process("", user=user, channel=channel, ts=ts, raw=event)
+                r = p.process_reaction(user=user, channel=channel, ts=ts, raw=event)
                 if r:
                     if not isinstance(r, tuple):
                         r = (r,)
@@ -145,7 +145,13 @@ class Command(LogBaseCommand):
 
             if event["type"] == "message" and event.get("subtype") is None:
                 return self.handle_message(**req.payload)
-            elif event["type"] in ("reaction_added", "reaction_removed"):
+
+    def process_reaction(self, client: SocketModeClient, req: SocketModeRequest):
+        if req.type == "events_api":
+            response = SocketModeResponse(envelope_id=req.envelope_id)
+            client.send_socket_mode_response(response)
+            event = req.payload["event"]
+            if event["type"] in ("reaction_added", "reaction_removed"):
                 return self.handle_reaction(**req.payload)
 
     def handle(self, *args, **options):
