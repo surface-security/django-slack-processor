@@ -47,12 +47,10 @@ class Command(LogBaseCommand):
         user = event.get("user")
         # Use event timestamp if available
         ts = event.get("event_ts", event.get("ts", ""))
-        
+
         processed_at_least_one = False
         for p in self.processors:
             try:
-                # Pass an empty string for message since reactions don't have text content,
-                # but you can still use the event in `raw` to let your processors decide what to do.
                 r = p.process("", user=user, channel=channel, ts=ts, raw=event)
                 if r:
                     if not isinstance(r, tuple):
