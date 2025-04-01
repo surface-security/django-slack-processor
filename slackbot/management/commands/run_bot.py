@@ -42,12 +42,6 @@ class Command(LogBaseCommand):
 
     def handle_reaction(self, **payload):
         event = payload.get("event", {})
-        # Extract channel from the item that was reacted to
-        channel = event.get("item", {}).get("channel")
-        user = event.get("user")
-        # Use event timestamp if available
-        ts = event.get("event_ts", event.get("ts", ""))
-
         processed_at_least_one = False
         for p in self.processors:
             try:
