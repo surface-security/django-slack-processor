@@ -40,6 +40,31 @@ class Command(LogBaseCommand):
         close_old_connections()
         self.handle_message_really(**payload)
 
+    def handle_reaction(self, **payload):
+        event = payload.get("event", {})
+        # Extract channel from the item that was reacted to
+        channel = event.get("item", {}).get("channel")
+        user = event.get("user")
+        # Use event timestamp if available
+        ts = event.get("event_ts", event.get("ts", ""))
+        
+        processed_at_least_one = False
+        for p in self.processors:
+            try:
+                # Pass an empty string for message since reactions don't have text content,
+                # but you can still use the event in `raw` to let your processors decide what to do.
+                r = p.process("", user=user, channel=channel, ts=ts, raw=event)
+                if r:
+                    if not isinstance(r, tuple):
+                        r = (r,)
+                    if MessageProcessor.PROCESSED in r:
+                        processed_at_least_one = True
+                    if MessageProcessor.STOP in r:
+                        break
+            except Exception as exc:
+                self.log_exception(f"Processor {str(p)} failed with {str(exc)} for reaction event {event}")
+        return processed_at_least_one
+
     def handle_message_really(self, **payload):
         event = payload.get("event")
 
@@ -118,8 +143,13 @@ class Command(LogBaseCommand):
             response = SocketModeResponse(envelope_id=req.envelope_id)
             client.send_socket_mode_response(response)
 
-            if req.payload["event"]["type"] == "message" and req.payload["event"].get("subtype") is None:
+            event = req.payload.get("event", {})
+            event_type = event.get("type")
+
+            if event_type == "message" and event.get("subtype") is None:
                 return self.handle_message(**req.payload)
+            elif event_type in ("reaction_added", "reaction_removed"):
+                return self.handle_reaction(**req.payload)
 
     def handle(self, *args, **options):
         # faster cold boot
