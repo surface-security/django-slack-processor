@@ -51,7 +51,7 @@ class Command(LogBaseCommand):
         processed_at_least_one = False
         for p in self.processors:
             try:
-                r = p.process_reaction(user=user, channel=channel, ts=ts, raw=event)
+                r = p.process_reaction(event)
                 if r:
                     if not isinstance(r, tuple):
                         r = (r,)
@@ -166,6 +166,7 @@ class Command(LogBaseCommand):
         )
         self.set_up()
         self.client.socket_mode_request_listeners.append(self.process)
+        self.client.socket_mode_request_listeners.append(self.process_reaction)
         self.stdout.write("Connecting...\n")
         self.client.connect()
 
