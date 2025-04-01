@@ -65,6 +65,43 @@ class TestSlackBotCommand(unittest.TestCase):
         self.command.handle_message.assert_called_once()
         self.assertTrue(result)
 
+    def test_post_message(self):
+        self.command.post_message(channel="C12345", text="Hello!")
+        self.command.web.chat_postMessage.assert_called_once_with(
+            channel="C12345", text="Hello!", as_user=1
+        )
+
+    def test_post_ephemeral(self):
+        self.command.post_ephemeral(channel="C12345", text="Hello!", user="U67890")
+        self.command.web.chat_postEphemeral.assert_called_once_with(
+            channel="C12345", text="Hello!", user="U67890", as_user=True
+        )
+
+    @patch(
+        "slackbot.management.commands.run_bot.unicodedata.normalize",
+        return_value="Hello bot!",
+    )
+    def test_handle_message_really_reacts_when_no_processors(self, mock_normalize):
+        self.command.web.reactions_add = MagicMock()
+        self.command.post_ephemeral = MagicMock()
+
+        payload = {
+            "event": {
+                "channel": "D12345",
+                "user": "U67890",
+                "text": "Hello!",
+                "ts": "123456.789",
+                "team": "T123",
+            }
+        }
+
+        self.command.handle_message_really(**payload)
+
+        self.command.web.reactions_add.assert_called_once_with(
+            name="surface_not_found", channel="D12345", timestamp="123456.789"
+        )
+        self.command.post_ephemeral.assert_called_once()
+
 
 if __name__ == "__main__":
     unittest.main()
