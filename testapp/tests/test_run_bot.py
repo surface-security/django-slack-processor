@@ -26,6 +26,20 @@ class TestSlackBotCommand(unittest.TestCase):
         result = self.command.handle_message(**payload)
         self.assertFalse(result)  # No processors, so should return False
 
+    @patch("threading.Event.wait", return_value=None)
+    @patch("slackbot.management.commands.run_bot.SocketModeClient")
+    @patch("slackbot.management.commands.run_bot.settings")
+    def test_handle(self, mock_settings, mock_socket_client, mock_event_wait):
+        mock_settings.SLACKBOT_BOT_TOKEN = "xoxb-123"
+        mock_settings.SLACKBOT_APP_TOKEN = "xapp-123"
+
+        mock_client_instance = mock_socket_client.return_value
+        self.command.set_up = MagicMock()
+        self.command.handle()
+
+        self.command.set_up.assert_called_once()
+        mock_client_instance.connect.assert_called_once()
+
     def test_handle_reaction(self):
         payload = {
             "event": {
