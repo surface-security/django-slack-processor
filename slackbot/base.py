@@ -43,7 +43,7 @@ class MessageProcessor:
         return self.handle_reaction(reaction_event)
 
     def handle_reaction(self, reaction_event) -> Optional[Union[int, tuple[int, int]]]:
-        raise NotImplementedError
+        raise NotImplementedError()
 
     def process(self, message, **kw) -> Optional[Union[int, tuple[int, int]]]:
         """
