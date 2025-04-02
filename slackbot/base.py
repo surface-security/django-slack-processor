@@ -43,6 +43,7 @@ class MessageProcessor:
         return self.handle_reaction(reaction_event)
 
     def handle_reaction(self, reaction_event) -> Optional[Union[int, tuple[int, int]]]:
+        # This method is currently a placeholder.
         pass
 
     def process(self, message, **kw) -> Optional[Union[int, tuple[int, int]]]:
