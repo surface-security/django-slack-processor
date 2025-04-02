@@ -40,6 +40,23 @@ class Command(LogBaseCommand):
         close_old_connections()
         self.handle_message_really(**payload)
 
+    def handle_reaction(self, **payload):
+        event = payload.get("event", {})
+        processed_at_least_one = False
+        for p in self.processors:
+            try:
+                r = p.process_reaction(event)
+                if r:
+                    if not isinstance(r, tuple):
+                        r = (r,)
+                    if MessageProcessor.PROCESSED in r:
+                        processed_at_least_one = True
+                    if MessageProcessor.STOP in r:
+                        break
+            except Exception as e:
+                self.log_exception("Processor failed for reaction event: %s %s", event, str(e))
+        return processed_at_least_one
+
     def handle_message_really(self, **payload):
         event = payload.get("event")
 
@@ -80,8 +97,8 @@ class Command(LogBaseCommand):
                         processed_at_least_one = True
                     if MessageProcessor.STOP in r:
                         break
-            except Exception as exc:
-                self.log_exception(f"Processor {str(p)} failed with {str(exc)} for message {message}")
+            except Exception as e:
+                self.log_exception("Processor failed for message: %s %s", message, str(e))
 
         # If private DM
         if channel[0] == "D":
@@ -118,8 +135,18 @@ class Command(LogBaseCommand):
             response = SocketModeResponse(envelope_id=req.envelope_id)
             client.send_socket_mode_response(response)
 
-            if req.payload["event"]["type"] == "message" and req.payload["event"].get("subtype") is None:
+            event = req.payload["event"]
+
+            if event["type"] == "message" and event.get("subtype") is None:
                 return self.handle_message(**req.payload)
+
+    def process_reaction(self, client: SocketModeClient, req: SocketModeRequest):
+        if req.type == "events_api":
+            response = SocketModeResponse(envelope_id=req.envelope_id)
+            client.send_socket_mode_response(response)
+            event = req.payload["event"]
+            if event["type"] in ("reaction_added", "reaction_removed"):
+                return self.handle_reaction(**req.payload)
 
     def handle(self, *args, **options):
         # faster cold boot
@@ -133,6 +160,7 @@ class Command(LogBaseCommand):
         )
         self.set_up()
         self.client.socket_mode_request_listeners.append(self.process)
+        self.client.socket_mode_request_listeners.append(self.process_reaction)
         self.stdout.write("Connecting...\n")
         self.client.connect()
 

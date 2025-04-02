@@ -27,6 +27,25 @@ class MessageProcessor:
         kwargs["as_user"] = kwargs.get("as_user", 1)
         return self.web.chat_postEphemeral(**kwargs)
 
+    def process_reaction(self, reaction_event: dict) -> Optional[Union[int, tuple[int, int]]]:
+        """
+        Handles reactions added or removed in Slack messages.
+
+        :param reaction_event: A dictionary containing reaction event data.
+        :return: None, self.STOP, self.PROCESSED, or tuple (self.PROCESSED, self.STOP)
+
+        PROCESSED if anything was done with input
+        STOP if no other processor should be called after this one
+        """
+        if "reaction" not in reaction_event:
+            return  # Ignore events that are not reactions
+
+        return self.handle_reaction(reaction_event)
+
+    def handle_reaction(self, reaction_event) -> Optional[Union[int, tuple[int, int]]]:
+        # This method is currently a placeholder.
+        pass
+
     def process(self, message, **kw) -> Optional[Union[int, tuple[int, int]]]:
         """
         :return: None, self.STOP, self.PROCESSED, or tuple PROCESSED,STOP
