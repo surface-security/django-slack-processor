@@ -54,7 +54,7 @@ class Command(LogBaseCommand):
                     if MessageProcessor.STOP in r:
                         break
             except Exception as e:
-                self.log_exception("Processor failed for reaction event: %s", event, e)
+                self.log_exception("Processor failed for reaction event: %s %s", event, str(e))
         return processed_at_least_one
 
     def handle_message_really(self, **payload):
@@ -98,7 +98,7 @@ class Command(LogBaseCommand):
                     if MessageProcessor.STOP in r:
                         break
             except Exception as e:
-                self.log_exception("Processor failed for message: %s", message, e)
+                self.log_exception("Processor failed for message: %s %s", message, str(e))
 
         # If private DM
         if channel[0] == "D":
