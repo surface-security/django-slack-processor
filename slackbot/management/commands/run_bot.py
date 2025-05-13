@@ -137,7 +137,7 @@ class Command(LogBaseCommand):
 
             event = req.payload["event"]
 
-            if event["type"] == "message" and event.get("subtype") is None:
+            if event["type"] == "message" and (event.get("subtype") is None or event.get("subtype") == "file_share") :
                 return self.handle_message(**req.payload)
 
     def process_reaction(self, client: SocketModeClient, req: SocketModeRequest):
