@@ -149,7 +149,7 @@ class Command(LogBaseCommand):
         for p in self.processors:
             try:
                 # Call a new method for file processing if it exists
-                if hasattr(p, 'process_file'):
+                if hasattr(p, "process_file"):
                     r = p.process_file(files, message, user=user, channel=channel, ts=ts, raw=event)
                     if r:
                         if not isinstance(r, tuple):
