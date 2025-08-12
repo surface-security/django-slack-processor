@@ -123,27 +123,27 @@ class Command(LogBaseCommand):
         Handle file share events (when users upload files)
         """
         event = payload.get("event")
-        
+
         channel = event.get("channel")
         user = event.get("user")
         ts = event.get("event_ts", event.get("ts", ""))
-        
+
         if not channel:
             return False
-            
+
         # Don't process bot's own file uploads
         if user == self.my_id:
             return False
-            
+
         # Get file information
         files = event.get("files", [])
         message = event.get("text", "")
-        
+
         # Log the file share event
         self.stdout.write(f"File share event: User {user} uploaded {len(files)} file(s) in channel {channel}")
         if message:
             self.stdout.write(f"Message: {message}")
-        
+
         # Process files through processors
         processed_at_least_one = False
         for p in self.processors:
@@ -170,7 +170,7 @@ class Command(LogBaseCommand):
                             break
             except Exception as e:
                 self.log_exception("Processor failed for file share event: %s %s", files, str(e))
-        
+
         return processed_at_least_one
 
     def set_up(self, **payload):

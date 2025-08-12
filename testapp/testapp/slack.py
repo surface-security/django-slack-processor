@@ -40,7 +40,7 @@ class DemoProcessor(MessageProcessor):
         """
         Handle file uploads - this will now be called when users upload files!
         """
-        
+
         # You can now process the files here
         for file_info in files:
             file_name = file_info.get('name', 'Unknown')
