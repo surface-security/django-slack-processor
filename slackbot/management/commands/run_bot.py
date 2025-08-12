@@ -192,7 +192,7 @@ class Command(LogBaseCommand):
 
             event = req.payload["event"]
 
-            if event["type"] == "message" and (event.get("subtype") is None or event.get("subtype") == "file_share") :
+            if event["type"] == "message" and (event.get("subtype") is None or event.get("subtype") == "file_share"):
                 return self.handle_message(**req.payload)
             elif event["type"] == "message" and event.get("subtype") == "file_share":
                 return self.handle_file_share(**req.payload)
