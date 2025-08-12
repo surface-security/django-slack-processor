@@ -1,6 +1,6 @@
 from functools import lru_cache
 
-__version__ = "0.1.7"
+__version__ = "0.1.8"
 
 
 @lru_cache

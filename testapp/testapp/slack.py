@@ -35,3 +35,16 @@ class DemoProcessor(MessageProcessor):
             else:
                 self.post_message(channel=channel, text=f'Nothing for you to see :no_entry:', thread_ts=ts)
             return self.PROCESSED
+
+    def process_file(self, files, message, user=None, channel=None, ts=None, raw=None):
+        """
+        Handle file uploads - this will now be called when users upload files!
+        """
+        
+        # You can now process the files here
+        for file_info in files:
+            file_name = file_info.get('name', 'Unknown')
+            file_type = file_info.get('mimetype', 'Unknown')
+            file_size = file_info.get('size', 0)
+
+        return self.PROCESSED

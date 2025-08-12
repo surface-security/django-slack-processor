@@ -70,6 +70,22 @@ class MessageProcessor:
         """
         raise NotImplementedError("abstract method")
 
+    def process_file(self, files, message, user=None, channel=None, ts=None, raw=None) -> Optional[Union[int, tuple[int, int]]]:
+        """
+        Handle file share events. Override this method to process file uploads.
+        
+        :param files: List of file objects from Slack
+        :param message: Optional text message accompanying the files
+        :param user: User ID who uploaded the files
+        :param channel: Channel where files were uploaded
+        :param ts: Timestamp of the event
+        :param raw: Raw event data from Slack
+        
+        :return: None, self.STOP, self.PROCESSED, or tuple PROCESSED,STOP
+        """
+        # Default implementation falls back to regular message processing
+        return self.handle(message, user=user, channel=channel, ts=ts, raw=raw)
+
 
 class NoMatchSlackCommand(Exception):
     pass

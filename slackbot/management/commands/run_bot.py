@@ -118,6 +118,61 @@ class Command(LogBaseCommand):
 
         return processed_at_least_one
 
+    def handle_file_share(self, **payload):
+        """
+        Handle file share events (when users upload files)
+        """
+        event = payload.get("event")
+        
+        channel = event.get("channel")
+        user = event.get("user")
+        ts = event.get("event_ts", event.get("ts", ""))
+        
+        if not channel:
+            return False
+            
+        # Don't process bot's own file uploads
+        if user == self.my_id:
+            return False
+            
+        # Get file information
+        files = event.get("files", [])
+        message = event.get("text", "")
+        
+        # Log the file share event
+        self.stdout.write(f"File share event: User {user} uploaded {len(files)} file(s) in channel {channel}")
+        if message:
+            self.stdout.write(f"Message: {message}")
+        
+        # Process files through processors
+        processed_at_least_one = False
+        for p in self.processors:
+            try:
+                # Call a new method for file processing if it exists
+                if hasattr(p, 'process_file'):
+                    r = p.process_file(files, message, user=user, channel=channel, ts=ts, raw=event)
+                    if r:
+                        if not isinstance(r, tuple):
+                            r = (r,)
+                        if MessageProcessor.PROCESSED in r:
+                            processed_at_least_one = True
+                        if MessageProcessor.STOP in r:
+                            break
+                else:
+                    # Fallback to regular message processing for backward compatibility
+                    r = p.process(message, user=user, channel=channel, ts=ts, raw=event)
+                    if r:
+                        if not isinstance(r, tuple):
+                            r = (r,)
+                        if MessageProcessor.PROCESSED in r:
+                            processed_at_least_one = True
+                        if MessageProcessor.STOP in r:
+                            break
+            except Exception as e:
+                self.log_exception("Processor failed for file share event: %s %s", files, str(e))
+        
+        return processed_at_least_one
+
     def set_up(self, **payload):
         data = self.web.auth_test()
         self.my_id = data.get("user_id")
@@ -139,6 +194,8 @@ class Command(LogBaseCommand):
 
             if event["type"] == "message" and event.get("subtype") is None:
                 return self.handle_message(**req.payload)
+            elif event["type"] == "message" and event.get("subtype") == "file_share":
+                return self.handle_file_share(**req.payload)
 
     def process_reaction(self, client: SocketModeClient, req: SocketModeRequest):
         if req.type == "events_api":
