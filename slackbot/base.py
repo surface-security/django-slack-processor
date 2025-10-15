@@ -14,6 +14,7 @@ class MessageProcessor:
         self.client = rtm_client
         self.web = web_client
         self.user_id = self.web.auth_test()["user_id"]
+        self.priority = 10
 
     @staticmethod
     def user_has_perm(user, perm):
@@ -69,6 +70,13 @@ class MessageProcessor:
         any other value will be ignored
         """
         raise NotImplementedError("abstract method")
+
+    def process_interactive(self, **payload):
+        return self.handle_interactive(**payload)
+
+    def handle_interactive(self, **payload) -> Optional[Union[int, tuple[int, int]]]:
+        # This method is currently a placeholder.
+        pass
 
 
 class NoMatchSlackCommand(Exception):
