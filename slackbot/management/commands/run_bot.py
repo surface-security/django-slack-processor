@@ -40,6 +40,22 @@ class Command(LogBaseCommand):
         close_old_connections()
         self.handle_message_really(**payload)
 
+    def handle_interactive(self, **payload):
+        processed_at_least_one = False
+        for p in self.processors:
+            try:
+                r = p.process_interactive(**payload)
+                if r:
+                    if not isinstance(r, tuple):
+                        r = (r,)
+                    if MessageProcessor.PROCESSED in r:
+                        processed_at_least_one = True
+                    if MessageProcessor.STOP in r:
+                        break
+            except Exception as e:
+                self.log_exception("Processor failed for interactive event: %s %s", payload, str(e))
+        return processed_at_least_one
+
     def handle_reaction(self, **payload):
         event = payload.get("event", {})
         processed_at_least_one = False
@@ -147,6 +163,10 @@ class Command(LogBaseCommand):
             event = req.payload["event"]
             if event["type"] in ("reaction_added", "reaction_removed"):
                 return self.handle_reaction(**req.payload)
+    
+    def process_interactive(self, client: SocketModeClient, req: SocketModeRequest):
+        if req.type == "interactive":
+            return self.handle_interactive(**req.payload)
 
     def handle(self, *args, **options):
         # faster cold boot
@@ -161,6 +181,7 @@ class Command(LogBaseCommand):
         self.set_up()
         self.client.socket_mode_request_listeners.append(self.process)
         self.client.socket_mode_request_listeners.append(self.process_reaction)
+        self.client.socket_mode_request_listeners.append(self.process_interactive)
         self.stdout.write("Connecting...\n")
         self.client.connect()
 

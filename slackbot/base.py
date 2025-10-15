@@ -70,6 +70,13 @@ class MessageProcessor:
         """
         raise NotImplementedError("abstract method")
 
+    def process_interactive(self, **payload):
+        return self.handle_interactive(**payload)
+
+    def handle_interactive(self, **payload) -> Optional[Union[int, tuple[int, int]]]:
+        # This method is currently a placeholder.
+        pass
+
 
 class NoMatchSlackCommand(Exception):
     pass
