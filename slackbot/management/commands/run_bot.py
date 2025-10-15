@@ -141,6 +141,7 @@ class Command(LogBaseCommand):
         self.my_name = data.get("user")
 
         self.processors = [x(self.client, self.web) for x in MessageProcessor.__subclasses__()]
+        self.processors.sort(key=lambda x: x.priority)
         self.stdout.write(f"Connected as {self.my_name}")
         self.stdout.write(
             f"Processors: {','.join(f'{x.__class__.__module__}.{x.__class__.__name__}' for x in self.processors)}"
